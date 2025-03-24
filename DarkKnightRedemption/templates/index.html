@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid game-container">
+    <!-- Auth Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="authModalTitle">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Login Form -->
+                    <form id="loginForm" class="d-none">
+                        <div class="mb-3">
+                            <label for="loginUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="loginUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-link" onclick="toggleAuthForm('register')">Register instead</button>
+                    </form>
+
+                    <!-- Register Form -->
+                    <form id="registerForm" class="d-none">
+                        <div class="mb-3">
+                            <label for="registerUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="registerUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="registerEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="registerPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                        <button type="button" class="btn btn-link" onclick="toggleAuthForm('login')">Login instead</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row h-100">
+        <div class="col-12">
+            <canvas id="gameCanvas" class="game-canvas"></canvas>
+
+            <!-- Story Dialog -->
+            <div id="storyDialog" class="story-dialog d-none">
+                <div class="card bg-transparent border-0">
+                    <div class="card-body">
+                        <p id="storyText" class="story-text mb-3"></p>
+                        <div id="choiceButtons" class="choice-buttons"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress" role="progressbar">
+                    <div id="transformationProgress" class="progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAuthForm(type) {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const modalTitle = document.getElementById('authModalTitle');
+
+    if (type === 'login') {
+        loginForm.classList.remove('d-none');
+        registerForm.classList.add('d-none');
+        modalTitle.textContent = 'Login';
+    } else {
+        loginForm.classList.add('d-none');
+        registerForm.classList.remove('d-none');
+        modalTitle.textContent = 'Register';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+
+    // Show auth modal on load if not logged in
+    fetch('/load_progress')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Not authenticated');
+            }
+            return response.json();
+        })
+        .catch(() => {
+            authModal.show();
+            toggleAuthForm('login');
+        });
+
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('loginUsername').value,
+                    password: document.getElementById('loginPassword').value,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                authModal.hide();
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('Login failed. Please try again.');
+        }
+    });
+
+    // Handle register form submission
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('registerUsername').value,
+                    email: document.getElementById('registerEmail').value,
+                    password: document.getElementById('registerPassword').value,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                authModal.hide();
+                location.reload();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert('Registration failed. Please try again.');
+        }
+    });
+});
+</script>
+{% endblock %}

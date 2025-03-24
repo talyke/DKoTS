@@ -1,0 +1,49 @@
+{
+    "chapters": [
+        {
+            "text": "You are a Dark Knight, burdened by the weight of your past. Your armor feels heavy, your soul darker still.",
+            "choices": [
+                {
+                    "text": "Embrace the darkness",
+                    "lightChange": -5,
+                    "nextChapter": 1
+                },
+                {
+                    "text": "Search for light",
+                    "lightChange": 5,
+                    "nextChapter": 2
+                }
+            ]
+        },
+        {
+            "text": "The shadows welcome you, but something deep inside yearns for more. A challenge approaches.",
+            "choices": [
+                {
+                    "text": "Face the shadow challenge",
+                    "minigame": "shadowDodge",
+                    "nextChapter": 3
+                }
+            ]
+        },
+        {
+            "text": "Memories of your past flutter like moths around a flame. Can you piece them together?",
+            "choices": [
+                {
+                    "text": "Try to remember",
+                    "minigame": "memoryMatch",
+                    "nextChapter": 3
+                }
+            ]
+        },
+        {
+            "text": "Each step forward reveals more about your true nature. The path to redemption is long but not impossible.",
+            "choices": [
+                {
+                    "text": "Continue the journey",
+                    "lightChange": 10,
+                    "nextChapter": 0
+                }
+            ]
+        }
+    ]
+}
